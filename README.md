@@ -15,4 +15,4 @@ npm run dev
 
 ให้นศ.ศึกษาวิธีการ build ใน **codesandbox.io** ได้จาก slide **Slide 10 - React Part One (extras)**
 
-(ใส่ URL ที่นี่)
+(https://codesandbox.io/s/peaceful-wind-x4q9nj?file=/components/Todo.jsx)
