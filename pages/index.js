@@ -8,13 +8,78 @@ import {
 } from "@tabler/icons";
 
 export default function Home() {
-  const deleteTodo = (idx) => {};
+  const [todos, setTodo] = useState([
+    { title: "James", completed: false },
+    { title: "Putter", completed: false },
+  ]);
+  const [toDoInputs, setToDoInputs] = useState("");
 
-  const markTodo = (idx) => {};
+  useEffect(() => {
+    const todoStr = localStorage.getItem("react-todos");
+    //if using (!todoStr) it will check if the condition is undefined, null, 0, "" ,So, it prefer to be (todoStr === null)
+    if (todoStr === null) setTodo([]);
+    else setTodo(JSON.parse(todoStr));
+  }, []);
 
-  const moveUp = (idx) => {};
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
-  const moveDown = (idx) => {};
+  useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+      return;
+    }
+    saveTodos();
+  }, [todos]);
+
+  const deleteTodo = (idx) => {
+    todos.splice(idx, 1);
+    const newTodos = [...todos];
+    setTodo(newTodos);
+  };
+
+  const markTodo = (idx) => {
+    // negate the completed property
+    todos[idx].completed = !todos[idx].completed;
+    setTodo([...todos]);
+  };
+
+  const moveUp = (idx) => {
+    //check
+    if (idx - 1 >= 0) {
+      const rest = todos[idx - 1];
+      todos[idx - 1] = todos[idx];
+      todos[idx] = rest;
+      setTodo([...todos]);
+    } else {
+      //When idx has exceeded the noninteger number
+      return;
+    }
+  };
+
+  const moveDown = (idx) => {
+    //check
+    if (idx + 1 < todos.length) {
+      const rest = todos[idx + 1];
+      todos[idx + 1] = todos[idx];
+      todos[idx] = rest;
+      setTodo([...todos]);
+    } else {
+      //When idx has exceeded the length of array todos
+      return;
+    }
+  };
+
+  const onKeyUpHandler = (e) => {
+    if (e.key !== "Enter") return;
+    const newtodo = [{ title: toDoInputs, completed: false }, ...todos];
+    setTodo([...newtodo]);
+    setToDoInputs("");
+  };
+
+  const saveTodos = () => {
+    const todosStr = JSON.stringify(todos);
+    localStorage.setItem("react-todos", todosStr);
+  };
 
   return (
     <div>
@@ -28,40 +93,39 @@ export default function Home() {
         <input
           className="form-control mb-1 fs-4"
           placeholder="insert todo here..."
+          onChange={(e) => {
+            setToDoInputs(e.target.value);
+          }}
+          value={toDoInputs}
+          onKeyUp={onKeyUpHandler}
         />
-        {/* Todos */}
-        {/* Example 1 */}
-        <div className="border-bottom p-1 py-2 fs-2 d-flex gap-2">
-          <span className="me-auto">Todo</span>
-        </div>
-        {/* Example 2 */}
-        <div className="border-bottom p-1 py-2 fs-2 d-flex gap-2">
-          <span className="me-auto">Todo with buttons</span>
 
-          <button className="btn btn-success">
-            <IconCheck />
-          </button>
-          <button className="btn btn-secondary">
-            <IconArrowUp />
-          </button>
-          <button className="btn btn-secondary">
-            <IconArrowDown />
-          </button>
-          <button className="btn btn-danger">
-            <IconTrash />
-          </button>
-        </div>
+        {todos.map((todo, i) => (
+          <Todo
+            title={todo.title}
+            completed={todo.completed}
+            key={i}
+            onDelete={() => deleteTodo(i)}
+            onMark={() => markTodo(i)}
+            onMoveUp={() => moveUp(i)}
+            onMoveDown={() => moveDown(i)}
+          />
+        ))}
 
         {/* summary section */}
         <p className="text-center fs-4">
-          <span className="text-primary">All (2) </span>
-          <span className="text-warning">Pending (2) </span>
-          <span className="text-success">Completed (0)</span>
+          <span className="text-primary">All ({todos.length}) </span>
+          <span className="text-warning">
+            Pending ({todos.filter((e) => e.completed === false).length}){" "}
+          </span>
+          <span className="text-success">
+            Completed ({todos.filter((e) => e.completed === true).length})
+          </span>
         </p>
 
         {/* Made by section */}
         <p className="text-center mt-3 text-muted fst-italic">
-          made by Chayanin Suatap 12345679
+          made by Raiwin Inthasit 640610665
         </p>
       </div>
     </div>
